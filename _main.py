@@ -1,5 +1,5 @@
 
-from _utils import loop, urlparse
+from _utils import loop, urlparse, StatePrint
 
 from _downloader import *
 
@@ -20,6 +20,8 @@ def main():
                 if 'e-hentai' in base_url: run_executor(dl_ehentai, content_url)
                 elif 'comic.naver.com' in base_url: run_executor(dl_naverwt, content_url)
                 elif 'tkor' in base_url: run_executor(dl_toonkor, content_url)
+
+                else: StatePrint('error', '지원되지 않는 사이트 입니다.')
 
             except:
                 pass

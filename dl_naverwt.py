@@ -1,14 +1,4 @@
-from _utils import (
-    asyncio,
-    GetSoup,
-    sub,
-    time,
-    MakeDirectory,
-    MakePDF,
-    FileDownload,
-    GetFileName,
-    StatePrint
-)
+from _utils import *
 
 async def GetImagesURL(epi_url):
     soup = await GetSoup(epi_url, referer=epi_url)
@@ -28,7 +18,6 @@ async def GetImagesURL(epi_url):
 async def main(wtLink):
     start_time = time()
 
-    StatePrint('info', f'download {wtLink}')
     StatePrint('info', '다운로드 중...')
 
     wt = await GetImagesURL(wtLink)

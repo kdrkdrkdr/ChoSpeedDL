@@ -1,14 +1,4 @@
-from _utils import (
-    asyncio,
-    GetSoup,
-    sub,
-    time,
-    MakeDirectory,
-    MakePDF,
-    FileDownload,
-    GetFileName,
-    StatePrint
-)
+from _utils import *
 
 
 async def GetDirectImagesURL(temp_image_urls:list):
@@ -16,6 +6,7 @@ async def GetDirectImagesURL(temp_image_urls:list):
     a = await asyncio.gather(*aSoup)
     realImg = [i.find('img', {'id':'img'})['src'] for i in a]
     return realImg
+
 
 
 
@@ -45,7 +36,6 @@ async def main(gallery_link):
     
     start_time = time()
 
-    StatePrint('info', f'download {gallery_link}')
     StatePrint('info', '다운로드 중..')
 
     g = await GetImagesURL(gallery_link)
