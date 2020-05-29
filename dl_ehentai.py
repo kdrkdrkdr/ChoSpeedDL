@@ -11,6 +11,8 @@ async def GetDirectImagesURL(temp_image_urls:list):
 
 
 async def GetImagesURL(gallery_url):
+    StatePrint("info", "정보를 불러오는 중..")
+    
     tempImageList = []
 
     pSoup = await GetSoup(gallery_url, referer=gallery_url)
@@ -52,7 +54,7 @@ async def main(gallery_link):
     tasks = [asyncio.ensure_future(FileDownload(filename=f'./{dirLoc}/e_hentai_temp_{idx}.jpg', fileurl=imgurl)) for idx, imgurl in enumerate(imgsURL)]
     await asyncio.gather(*tasks)
 
-    fname = dirLoc + '.pdf'
+    fname = '[e-hentai]' + dirLoc + '.pdf'
     
     MakePDF(
         ImageList=imgLoc,

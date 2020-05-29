@@ -1,17 +1,39 @@
 from _utils import *
 
 async def GetImagesURL(epi_url):
+    StatePrint("info", "정보를 불러오는 중..")
+
+    ListOfIMGsURL = []
+
     soup = await GetSoup(epi_url, referer=epi_url)
-    
+
     h2 = soup.find_all('h2')[1]
-    for s in h2.select('span'):
-        s.extract()
+    for t in h2.select('span'):
+        t.extract()
 
-    bigTitle = h2.text
+    title = sub('[\n\t]', '', h2.text)
+    
+    epiCount = int(str(soup.find('td', {'class':'title'}).a['onclick']).split("\'")[-2])
+    pages = (epiCount // 10) + 1
 
-    wtitle = soup.h3.text
-    ListOfIMGsURL = [i['src'] for i in soup.find('div', {'class':'wt_viewer'}).find_all('img')]
-    return [bigTitle, wtitle, ListOfIMGsURL]
+    pageUrls = [f'{epi_url}&page={i}' for i in range(1, pages+1, 1)]
+    pSoup = [asyncio.ensure_future(GetSoup(u, referer=u)) for u in pageUrls]
+    p = await asyncio.gather(*pSoup)
+
+    episode_linkList = []
+    for q in p[::-1]:
+        episode_linkList.extend(q.find_all('td', {'class':'title'})[::-1])
+
+    episode_links = ['https://comic.naver.com' + e.a['href'] for e in episode_linkList]
+
+    rSoup = [asyncio.ensure_future(GetSoup(r, referer=r)) for r in episode_links]
+    r = await asyncio.gather(*rSoup)
+
+    for s in r:
+        ListOfIMGsURL.extend(i['src'] for i in s.find('div', {'class':'wt_viewer'}).find_all('img'))
+
+    return [title, ListOfIMGsURL]
+
 
 
 
@@ -22,8 +44,8 @@ async def main(wtLink):
 
     wt = await GetImagesURL(wtLink)
 
-    wtTitle = wt[1]
-    imgsURL = wt[2]
+    wtTitle = wt[0]
+    imgsURL = wt[1]
     
     dirLoc = GetFileName(f'{wtTitle}')
     MakeDirectory(dirLoc)
@@ -34,7 +56,7 @@ async def main(wtLink):
     tasks = [asyncio.ensure_future(FileDownload(filename=f'./{dirLoc}/naver_wt_temp_{idx}.jpg', fileurl=imgUrl)) for idx, imgUrl in enumerate(imgsURL)]
     await asyncio.gather(*tasks)
 
-    fname = dirLoc + '.pdf'
+    fname = '[naver-wt]' + dirLoc + '.pdf'
 
     MakePDF(
         ImageList=imgLoc,
