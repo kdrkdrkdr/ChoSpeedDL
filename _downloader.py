@@ -1,3 +1,4 @@
 import dl_ehentai
 import dl_naverwt
 import dl_toonkor
+import dl_syosetu

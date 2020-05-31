@@ -77,7 +77,6 @@ async def main(wtLink):
     await asyncio.gather(*tasks)
 
     for idx in range(len(dirList)):
-        print(imageLoc[idx], '\n\n')
         MakePDF(
             ImageList=imageLoc[idx],
             Filename=dirList[idx] + '.pdf'

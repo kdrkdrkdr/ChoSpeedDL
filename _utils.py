@@ -18,13 +18,14 @@ from time import time, sleep
 
 from base64 import b64decode
 from random import choice
+import codecs
 
 
 init(autoreset=True)
 
 loop = asyncio.get_event_loop()
 
-sem = asyncio.Semaphore(100)
+sem = asyncio.Semaphore(5)
 
 
 
@@ -35,9 +36,7 @@ def GetSession(referer):
         'User-Agent': 'Mozilla 5.0',
         'referer': referer,
     }
-
     return sess
-
 
 
 def MakeDirectory(DirPath):
@@ -76,7 +75,6 @@ async def FileDownload(filename, fileurl):
 
 
 
-
 def GetFileName(filename):
     toReplace = {
         '\\':'', '/':'', ':':'-', '\"':'',
@@ -101,6 +99,10 @@ def MakePDF(ImageList, Filename):
         return
         
 
+def WriteTextFile(filename, content):
+    f = codecs.open(filename, 'w', encoding='utf-8')
+    f.write(content)
+    f.close()
 
 
 

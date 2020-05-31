@@ -12,3 +12,4 @@
 |e-hentai|https://e-hentai.org|
 |naver webtoon|https://comic.naver.com|
 |toonkor|https://tkor.pro|
+|syosetu|https://ncode.syosetu.com|

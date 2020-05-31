@@ -28,9 +28,10 @@ def main():
             base_url = urlparse(content_url).netloc
 
             try:
-                if 'e-hentai' in base_url: run_executor(dl_ehentai, content_url)
-                elif 'comic.naver.com' in base_url: run_executor(dl_naverwt, content_url)
-                elif 'tkor' in base_url: run_executor(dl_toonkor, content_url)
+                if 'https://e-hentai.org' in base_url: run_executor(dl_ehentai, content_url)
+                elif 'https://comic.naver.com' in base_url: run_executor(dl_naverwt, content_url)
+                elif 'https://tkor.pro' in base_url: run_executor(dl_toonkor, content_url)
+                elif 'https://ncode.syosetu.com' in base_url: run_executor(dl_syosetu, content_url)
 
 
                 else: StatePrint('error', '지원되지 않는 사이트 입니다.')
