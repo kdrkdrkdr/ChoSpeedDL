@@ -1,6 +1,9 @@
 from _utils import *
 
 
+baseURL = 'https://tkor.pro'
+
+
 async def GetDirectImagesURL(temp_image_urls:list):
     aSoup = [asyncio.ensure_future(GetSoup(t, referer=t)) for t in temp_image_urls]
     a = await asyncio.gather(*aSoup)
@@ -38,30 +41,22 @@ async def main(gallery_link):
     
     start_time = time()
 
+    g = await GetImagesURL(gallery_link)
     StatePrint('info', '다운로드 중..')
 
-    g = await GetImagesURL(gallery_link)
+
     gTitle = g[0]
     imgsURL = g[1]
 
-    dirLoc = GetFileName(f'{gTitle}')
+    dirLoc = '[e-hentai] ' + GetFileName(f'{gTitle}')
 
-    MakeDirectory(f'./{dirLoc}/')
-
-    imgLoc = [f'./{dirLoc}/e_hentai_temp_{i}.jpg' for i in range(len(imgsURL))]
+    MakeDirectory(f'./다운로드_폴더/{dirLoc}/')
 
 
-    tasks = [asyncio.ensure_future(FileDownload(filename=f'./{dirLoc}/e_hentai_temp_{idx}.jpg', fileurl=imgurl)) for idx, imgurl in enumerate(imgsURL)]
+    tasks = [asyncio.ensure_future(FileDownload(filename=f'./다운로드_폴더/{dirLoc}/{dirLoc}_{idx}.jpg', fileurl=imgurl)) for idx, imgurl in enumerate(imgsURL)]
     await asyncio.gather(*tasks)
 
-    fname = '[e-hentai]' + dirLoc + '.pdf'
-    
-    MakePDF(
-        ImageList=imgLoc,
-        Filename=fname,
-        DirLoc = f'./{dirLoc}/'
-    )
     
     StatePrint('time', f'{int(time()-start_time)}')
-    StatePrint('file', f'{fname}')
+    StatePrint('dir', f'./다운로드_폴더/{dirLoc}/')
     StatePrint('complete', '다운로드 완료!')

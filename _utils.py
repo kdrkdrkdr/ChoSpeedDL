@@ -1,6 +1,6 @@
 #-*- coding:utf-8 -*-
 
-from requests import Session
+from requests import Session, adapters
 from bs4 import BeautifulSoup
 from re import sub
 
@@ -8,27 +8,28 @@ import asyncio
 import aiohttp
 import aiofiles
 
-from img2pdf import convert as pdfConvert
 from shutil import rmtree
 from os import mkdir
+from img2pdf import convert as pdfConvert
 
 from urllib.parse import urlparse
 from colorama import init, Fore
 from time import time, sleep
 
 from base64 import b64decode
-
+from random import choice
 
 
 init(autoreset=True)
 
-sem = asyncio.Semaphore(5)
-
 loop = asyncio.get_event_loop()
 
+sem = asyncio.Semaphore(100)
 
 
-def GetSession(url, referer):
+
+
+def GetSession(referer):
     sess = Session()
     sess.headers = {
         'User-Agent': 'Mozilla 5.0',
@@ -51,7 +52,7 @@ def MakeDirectory(DirPath):
 
 
 async def GetSoup(url, referer):
-    sess = GetSession(url, referer)
+    sess = GetSession(referer)
     req = await loop.run_in_executor(None, sess.get, url)
     html = req.text
     soup = await loop.run_in_executor(None, BeautifulSoup, html, 'html.parser')
@@ -76,19 +77,6 @@ async def FileDownload(filename, fileurl):
 
 
 
-def MakePDF(ImageList, Filename, DirLoc):
-    try:
-        with open(Filename, 'wb') as pdf:
-            pdf.write(pdfConvert(ImageList))
-    except:
-        StatePrint('error', 'pdf 제작에 오류가 발생했습니다.')
-
-    finally:
-        rmtree(DirLoc, ignore_errors=True)
-
-
-
-
 def GetFileName(filename):
     toReplace = {
         '\\':'', '/':'', ':':'-', '\"':'',
@@ -99,6 +87,19 @@ def GetFileName(filename):
         filename = str(filename).replace(key, value)
 
     return filename
+
+
+
+def MakePDF(ImageList, Filename):
+    try:
+        with open(Filename, 'wb') as pdf:
+            pdf.write(pdfConvert(ImageList))
+    except:
+        StatePrint('error', 'pdf 제작에 오류가 발생했습니다.')
+
+    finally:
+        return
+        
 
 
 
@@ -119,8 +120,8 @@ def StatePrint(state, string):
     elif state == 'time':
         print(Fore.WHITE + f'[Time] 다운로드 시간(초): {int(string)}')
 
-    elif state == 'file':
-        print(Fore.YELLOW + f'[File] 파일 이름: \"{string}\"')
+    elif state == 'dir':
+        print(Fore.YELLOW + f'[File] 폴더 위치: \"{string}\"')
 
     else:
         print("?")

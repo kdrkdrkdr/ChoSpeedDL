@@ -1,9 +1,13 @@
 from _utils import *
 
+
+baseURL = 'https://comic.naver.com'
+
+
 async def GetImagesURL(epi_url):
     StatePrint("info", "정보를 불러오는 중..")
 
-    ListOfIMGsURL = []
+    ListOfIMGsURL = {}
 
     soup = await GetSoup(epi_url, referer=epi_url)
 
@@ -30,7 +34,8 @@ async def GetImagesURL(epi_url):
     r = await asyncio.gather(*rSoup)
 
     for s in r:
-        ListOfIMGsURL.extend(i['src'] for i in s.find('div', {'class':'wt_viewer'}).find_all('img'))
+        ListOfIMGsURL[s.h3.text] = [i['src'] for i in s.find('div', {'class':'wt_viewer'}).find_all('img')]
+
 
     return [title, ListOfIMGsURL]
 
@@ -40,30 +45,44 @@ async def GetImagesURL(epi_url):
 async def main(wtLink):
     start_time = time()
 
-    StatePrint('info', '다운로드 중...')
-
     wt = await GetImagesURL(wtLink)
+
+    StatePrint('info', '다운로드 중...')
 
     wtTitle = wt[0]
     imgsURL = wt[1]
     
-    dirLoc = GetFileName(f'{wtTitle}')
-    MakeDirectory(dirLoc)
+    dirLoc = '[naver-wt] ' + GetFileName(f'{wtTitle}')
+    MakeDirectory(f'./다운로드_폴더/{dirLoc}/')
 
-    imgLoc = [f'./{dirLoc}/naver_wt_temp_{i}.jpg' for i in range(len(imgsURL))]
+    dirList = []
+    imageLoc = []
+    tasks = []
+    for k, v in imgsURL.items():
+        MakeDirectory(f'./다운로드_폴더/{dirLoc}/{k}/')
+        dirList.append(f'./다운로드_폴더/{dirLoc}/{k}')
+
+        tempDir = []
+        for idx, imgUrl in enumerate(v):
+            imgFileName = f'./다운로드_폴더/{dirLoc}/{k}/{idx}.jpg'
+            tasks.append(asyncio.ensure_future(FileDownload(filename=imgFileName, fileurl=imgUrl)))
+            tempDir.append(imgFileName)
+
+        imageLoc.append(tempDir)
 
 
-    tasks = [asyncio.ensure_future(FileDownload(filename=f'./{dirLoc}/naver_wt_temp_{idx}.jpg', fileurl=imgUrl)) for idx, imgUrl in enumerate(imgsURL)]
     await asyncio.gather(*tasks)
 
-    fname = '[naver-wt]' + dirLoc + '.pdf'
+    for idx in range(len(dirList)):
+        MakePDF(
+            ImageList=imageLoc[idx],
+            Filename=dirList[idx] + '.pdf',
+        )
+    
+    for d in dirList: rmtree(d, ignore_errors=True)
 
-    MakePDF(
-        ImageList=imgLoc,
-        Filename=fname,
-        DirLoc=dirLoc
-    )
+
 
     StatePrint('time', f'{int(time()-start_time)}')
-    StatePrint('file', f'{fname}')
+    StatePrint('dir', f'./다운로드_폴더/{dirLoc}/')
     StatePrint('complete', '다운로드 완료!')

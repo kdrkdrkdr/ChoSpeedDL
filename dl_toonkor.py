@@ -6,7 +6,7 @@ baseURL = 'https://tkor.pro'
 async def GetImagesURL(wtLink):
     StatePrint("info", "정보를 불러오는 중..")
 
-    ListOfIMGsURL = []
+    ListOfIMGsURL = {}
 
     soup = await GetSoup(wtLink, referer=wtLink)
 
@@ -25,9 +25,9 @@ async def GetImagesURL(wtLink):
 
     t = await asyncio.gather(*eSoup)
 
-
-
     for f in t:
+        tempDir = []
+
         b64Code = f.text.split("var toon_img = ")[1].split(";")[0]
         html = b64decode(b64Code.encode("UTF-8")).decode("UTF-8")
         IMGsCode = BeautifulSoup(html, 'html.parser').find_all("img")
@@ -36,9 +36,11 @@ async def GetImagesURL(wtLink):
             imgSrc  = imgURL['src']
 
             if len(imgSrc.split('/data/')[0].replace(' ', '')) != 0:
-                ListOfIMGsURL.append(imgSrc)
+                tempDir.append(imgSrc)
             else:
-                ListOfIMGsURL.append(baseURL + imgSrc)
+                tempDir.append(baseURL + imgSrc)
+
+        ListOfIMGsURL[f.h1.text] = tempDir
 
     return [wtTitle, ListOfIMGsURL]
 
@@ -46,31 +48,44 @@ async def GetImagesURL(wtLink):
 
 async def main(wtLink):
     start_time = time()
+    wt = await GetImagesURL(wtLink)
 
     StatePrint('info', '다운로드 중...')
-
-    wt = await GetImagesURL(wtLink)
 
     wtTitle = wt[0]
     imgsURL = wt[1]
 
-    dirLoc = GetFileName(f'{wtTitle}')
-    MakeDirectory(dirLoc)
+    dirLoc = '[toonkor] ' + GetFileName(f'{wtTitle}')
+    MakeDirectory(f'./다운로드_폴더/{dirLoc}/')
 
-    imgLoc = [f'./{dirLoc}/tkor_temp_{i}.jpg' for i in range(len(imgsURL))]
+    dirList = []
+    imageLoc = []
+    tasks = []
 
-    tasks = [asyncio.ensure_future(FileDownload(filename=f'./{dirLoc}/tkor_temp_{idx}.jpg', fileurl=imgUrl)) for idx, imgUrl in enumerate(imgsURL)]
+    for k, v in imgsURL.items():
+        MakeDirectory(f'./다운로드_폴더/{dirLoc}/{k}/')
+        dirList.append(f'./다운로드_폴더/{dirLoc}/{k}')
+
+        tempDir = []
+        for idx, imgUrl in enumerate(v):
+            imgFileName = f'./다운로드_폴더/{dirLoc}/{k}/{idx}.jpg'
+            tasks.append(asyncio.ensure_future(FileDownload(filename=imgFileName, fileurl=imgUrl)))
+            tempDir.append(imgFileName)
+
+        imageLoc.append(tempDir)
+
     await asyncio.gather(*tasks)
 
-
-    fname = '[toonkor]' + dirLoc + '.pdf'
-
-    MakePDF(
-        ImageList=imgLoc,
-        Filename=fname,
-        DirLoc=dirLoc
-    )
+    for idx in range(len(dirList)):
+        print(imageLoc[idx], '\n\n')
+        MakePDF(
+            ImageList=imageLoc[idx],
+            Filename=dirList[idx] + '.pdf'
+        )
+    
+    for d in dirList: rmtree(d, ignore_errors=True)
+    
 
     StatePrint('time', f'{int(time()-start_time)}')
-    StatePrint('file', f'{fname}')
+    StatePrint('dir', f'./다운로드_폴더/{dirLoc}/')
     StatePrint('complete', '다운로드 완료!')
