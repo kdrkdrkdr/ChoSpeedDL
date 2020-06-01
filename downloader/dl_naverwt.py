@@ -47,24 +47,22 @@ async def main(wtLink):
 
     wt = await GetImagesURL(wtLink)
 
-    StatePrint('info', '다운로드 중...')
-
     wtTitle = wt[0]
     imgsURL = wt[1]
     
     dirLoc = '[naver-wt] ' + GetFileName(f'{wtTitle}')
-    MakeDirectory(f'./다운로드_폴더/{dirLoc}/')
+    MakeDirectory(f'./{download_folder}/{dirLoc}/')
 
     dirList = []
     imageLoc = []
     tasks = []
     for k, v in imgsURL.items():
-        MakeDirectory(f'./다운로드_폴더/{dirLoc}/{k}/')
-        dirList.append(f'./다운로드_폴더/{dirLoc}/{k}')
+        MakeDirectory(f'./{download_folder}/{dirLoc}/{k}/')
+        dirList.append(f'./{download_folder}/{dirLoc}/{k}')
 
         tempDir = []
         for idx, imgUrl in enumerate(v):
-            imgFileName = f'./다운로드_폴더/{dirLoc}/{k}/{idx}.jpg'
+            imgFileName = f'./{download_folder}/{dirLoc}/{k}/{idx}.jpg'
             tasks.append(asyncio.ensure_future(FileDownload(filename=imgFileName, fileurl=imgUrl)))
             tempDir.append(imgFileName)
 
@@ -81,8 +79,3 @@ async def main(wtLink):
     
     for d in dirList: rmtree(d, ignore_errors=True)
 
-
-
-    StatePrint('time', f'{int(time()-start_time)}')
-    StatePrint('dir', f'./다운로드_폴더/{dirLoc}/')
-    StatePrint('complete', '다운로드 완료!')

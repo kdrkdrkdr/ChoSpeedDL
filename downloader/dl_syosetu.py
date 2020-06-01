@@ -3,8 +3,6 @@ from ._utils import *
 baseURL = 'https://ncode.syosetu.com'
 
 async def GetEpisURL(syosetuLink):
-    StatePrint('info', '정보를 불러오는 중..')
-
     ListOfEpisURL = {}
 
     soup = await GetSoup(syosetuLink, referer=baseURL)
@@ -31,7 +29,7 @@ async def main(syosetuLink):
     epi_urls = epi_list[1]
 
     dirLoc = '[syosetu] ' + GetFileName(syosetuTitle)
-    MakeDirectory(f'./다운로드_폴더/{dirLoc}/')
+    MakeDirectory(f'./{download_folder}/{dirLoc}/')
     
     tasks = [asyncio.ensure_future(GetSoup(v, referer=baseURL)) for k, v in epi_urls.items()]
     ncode = await asyncio.gather(*tasks)
@@ -43,8 +41,4 @@ async def main(syosetuLink):
         for nC in nContent:
             novelContent += str(nC.text) + "\n"
         
-        WriteTextFile(filename=f'./다운로드_폴더/{dirLoc}/{list(epi_urls.keys())[idx]}.txt', content=novelContent)
-
-    StatePrint('time', f'{int(time()-start_time)}')
-    StatePrint('dir', f'./다운로드_폴더/{dirLoc}/')
-    StatePrint('complete', '다운로드 완료!')
+        WriteTextFile(filename=f'./{download_folder}/{dirLoc}/{list(epi_urls.keys())[idx]}.txt', content=novelContent)

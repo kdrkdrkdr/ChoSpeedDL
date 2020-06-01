@@ -42,7 +42,6 @@ async def main(gallery_link):
     start_time = time()
 
     g = await GetImagesURL(gallery_link)
-    StatePrint('info', '다운로드 중..')
 
 
     gTitle = g[0]
@@ -50,12 +49,12 @@ async def main(gallery_link):
 
     dirLoc = '[e-hentai] ' + GetFileName(f'{gTitle}')
 
-    MakeDirectory(f'./다운로드_폴더/{dirLoc}/')
+    MakeDirectory(f'./{download_folder}/{dirLoc}/')
 
     imageLoc = []
     tasks = []
     for idx, imgurl in enumerate(imgsURL):
-        imgName = f'./다운로드_폴더/{dirLoc}/{idx}.jpg'
+        imgName = f'./{download_folder}/{dirLoc}/{idx}.jpg'
         tasks.append(asyncio.ensure_future(FileDownload(filename=imgName, fileurl=imgurl)))
         imageLoc.append(imgName)
         
@@ -64,12 +63,6 @@ async def main(gallery_link):
     
     MakePDF(
         ImageList=imageLoc,
-        Filename=f'./다운로드_폴더/{dirLoc}.pdf'
+        Filename=f'./{download_folder}/{dirLoc}.pdf'
     )
-    rmtree(f'./다운로드_폴더/{dirLoc}/', ignore_errors=True)
-
-
-    
-    StatePrint('time', f'{int(time()-start_time)}')
-    StatePrint('dir', f'./다운로드_폴더/{dirLoc}/')
-    StatePrint('complete', '다운로드 완료!')
+    rmtree(f'./{download_folder}/{dirLoc}/', ignore_errors=True)

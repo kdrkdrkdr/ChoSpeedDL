@@ -20,12 +20,17 @@ from base64 import b64decode
 from random import choice
 import codecs
 
+from json import loads
+from click import clear as ClearWindow
+
+download_folder = '다운로드_폴더'
+
 
 init(autoreset=True)
 
 loop = asyncio.get_event_loop()
 
-sem = asyncio.Semaphore(100)
+sem = asyncio.Semaphore(250)
 
 
 
@@ -56,7 +61,6 @@ async def GetSoup(url, referer):
     html = req.text
     soup = await loop.run_in_executor(None, BeautifulSoup, html, 'html.parser')
     return soup
-
 
 
 
