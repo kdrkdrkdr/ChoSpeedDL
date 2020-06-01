@@ -13,3 +13,5 @@
 |naver webtoon|https://comic.naver.com|
 |toonkor|https://tkor.pro|
 |syosetu|https://ncode.syosetu.com|
+|hiyobi|https://hiyobi.me|
+|marumaru|https://marumaru.guide|
