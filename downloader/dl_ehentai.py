@@ -1,7 +1,7 @@
 from ._utils import *
 
 
-baseURL = 'https://tkor.pro'
+baseURL = 'https://e-hentai.org'
 
 
 async def GetDirectImagesURL(temp_image_urls:list):
@@ -52,9 +52,22 @@ async def main(gallery_link):
 
     MakeDirectory(f'./다운로드_폴더/{dirLoc}/')
 
-
-    tasks = [asyncio.ensure_future(FileDownload(filename=f'./다운로드_폴더/{dirLoc}/{dirLoc}_{idx}.jpg', fileurl=imgurl)) for idx, imgurl in enumerate(imgsURL)]
+    imageLoc = []
+    tasks = []
+    for idx, imgurl in enumerate(imgsURL):
+        imgName = f'./다운로드_폴더/{dirLoc}/{idx}.jpg'
+        tasks.append(asyncio.ensure_future(FileDownload(filename=imgName, fileurl=imgurl)))
+        imageLoc.append(imgName)
+        
+    
     await asyncio.gather(*tasks)
+    
+    MakePDF(
+        ImageList=imageLoc,
+        Filename=f'./다운로드_폴더/{dirLoc}.pdf'
+    )
+    rmtree(f'./다운로드_폴더/{dirLoc}/', ignore_errors=True)
+
 
     
     StatePrint('time', f'{int(time()-start_time)}')

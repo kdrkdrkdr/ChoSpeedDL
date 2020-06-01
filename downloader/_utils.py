@@ -25,7 +25,7 @@ init(autoreset=True)
 
 loop = asyncio.get_event_loop()
 
-sem = asyncio.Semaphore(5)
+sem = asyncio.Semaphore(100)
 
 
 
@@ -71,8 +71,7 @@ async def FileDownload(filename, fileurl):
             break
 
         except:
-            print("다운로드 에러!")
-
+            continue
 
 
 def GetFileName(filename):
