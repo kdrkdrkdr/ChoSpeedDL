@@ -2,7 +2,7 @@
 from downloader._utils import ( loop, urlparse, StatePrint, mkdir, download_folder, ClearWindow, sleep )
 from downloader import *
 
-from os.path import isdir
+from os.path import isdir, isfile
 from os import system
 
 import ctypes
@@ -10,18 +10,23 @@ import sys
 from threading import Thread
 
 
+
+
+# def run_executor_for_thread(import_file, content_url):
+    
+
+
 def run_executor(import_file, content_url):
     loop.run_until_complete(import_file.main(content_url))
 
 
-
-
-def check_download_folder():
+def check_requirements_file():
     if isdir(f'./{download_folder}/'):
-        return
+        pass
 
     else:
         mkdir(f'./{download_folder}/')
+
 
 
 
@@ -33,7 +38,7 @@ def goodbye_dpi():
 def main():
     while True:
         try:
-            check_download_folder()
+            check_requirements_file()
 
             content_url = str(input('\n>> ')).replace(' ', '')
             base_url = urlparse(content_url).netloc

@@ -51,10 +51,8 @@ async def main(epi_url):
     await asyncio.gather(*tasks)
     
 
-    for idx in range(len(dirList)):
-        MakePDF(
-            ImageList=imageLoc[idx],
-            Filename=dirList[idx] + '.pdf',
-        )
+    pdf_tasks = [asyncio.ensure_future(MakePDF(ImageList=imageLoc[idx], Filename=dirList[idx]+'.pdf')) for idx in range(len(dirList))]
+    
+    await asyncio.gather(*pdf_tasks)
     
     for d in dirList: rmtree(d, ignore_errors=True)

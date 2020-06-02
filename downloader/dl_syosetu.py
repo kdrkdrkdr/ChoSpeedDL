@@ -21,6 +21,7 @@ async def GetEpisURL(syosetuLink):
 
 
 async def main(syosetuLink):
+
     start_time = time()
 
     epi_list = await GetEpisURL(syosetuLink)

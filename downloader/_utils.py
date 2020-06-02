@@ -44,6 +44,7 @@ def GetSession(referer):
     return sess
 
 
+
 def MakeDirectory(DirPath):
     try:
         mkdir(DirPath)
@@ -75,7 +76,9 @@ async def FileDownload(filename, fileurl):
             break
 
         except:
-            continue
+            print(fileurl)
+
+
 
 
 def GetFileName(filename):
@@ -91,21 +94,23 @@ def GetFileName(filename):
 
 
 
-def MakePDF(ImageList, Filename):
+async def MakePDF(ImageList, Filename):
     try:
-        with open(Filename, 'wb') as pdf:
-            pdf.write(pdfConvert(ImageList))
+        async with aiofiles.open(Filename, 'wb') as pdf:
+            await pdf.write(pdfConvert(ImageList))
     except:
         StatePrint('error', 'pdf 제작에 오류가 발생했습니다.')
 
     finally:
         return
         
+        
 
 def WriteTextFile(filename, content):
     f = codecs.open(filename, 'w', encoding='utf-8')
     f.write(content)
     f.close()
+
 
 
 

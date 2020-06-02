@@ -14,7 +14,6 @@ async def GetDirectImagesURL(temp_image_urls:list):
 
 
 async def GetImagesURL(gallery_url):
-    StatePrint("info", "정보를 불러오는 중..")
     
     tempImageList = []
 
