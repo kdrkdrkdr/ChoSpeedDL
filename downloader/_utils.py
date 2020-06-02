@@ -65,13 +65,17 @@ async def GetSoup(url, referer):
 
 
 
-async def FileDownload(filename, fileurl):
+
+async def FileDownload(filename, fileurl, referer=None):
+    if referer == None:
+        referer = fileurl
+
     while True:
         try:
             async with sem:
-                async with aiohttp.ClientSession(headers={'User-Agent':'Mozilla 5.0'}) as sess:
+                async with aiohttp.ClientSession(headers={'User-Agent':'Mozilla 5.0', 'cookie':'', 'Referer':'https://www.pixiv.net'}) as sess:
                     async with sess.get(fileurl) as resp:
-                        async with aiofiles.open(filename, mode='wb') as f:
+                        async with aiofiles.open(filename, 'wb') as f:
                             await f.write(await resp.read())
             break
 

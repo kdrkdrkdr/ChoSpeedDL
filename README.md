@@ -12,6 +12,7 @@
 |e-hentai|https://e-hentai.org|
 |naver webtoon|https://comic.naver.com|
 |toonkor|https://tkor.pro|
-|syosetu|https://ncode.syosetu.com|
+|syosetu|https://syosetu.com|
 |hiyobi|https://hiyobi.me|
 |marumaru|https://marumaru.guide|
+|pixiv|https://www.pixiv.net|

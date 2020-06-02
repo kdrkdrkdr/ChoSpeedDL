@@ -50,6 +50,7 @@ def main():
             elif 'ncode.syosetu.com' in base_url: run_executor(dl_syosetu, content_url)
             elif 'hiyobi' in base_url: run_executor(dl_hiyobi, content_url)
             elif 'marumaru' in base_url: run_executor(dl_marumaru, content_url)
+            elif 'pixiv.net' in base_url: run_executor(dl_pixiv, content_url)
 
             else: StatePrint('error', '지원되지 않는 사이트 입니다.')
 
