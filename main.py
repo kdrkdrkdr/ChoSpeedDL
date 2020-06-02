@@ -1,6 +1,7 @@
 
-from downloader._utils import ( loop, urlparse, StatePrint, mkdir, download_folder, ClearWindow, sleep )
+from downloader._utils import ( urlparse, StatePrint, mkdir, download_folder, ClearWindow, sleep, asyncio )
 from downloader import *
+from downloader import _utils
 
 from os.path import isdir, isfile
 from os import system
@@ -10,14 +11,9 @@ import sys
 from threading import Thread
 
 
-
-
-# def run_executor_for_thread(import_file, content_url):
-    
-
-
 def run_executor(import_file, content_url):
-    loop.run_until_complete(import_file.main(content_url))
+    import_file.run(content_url)
+
 
 
 def check_requirements_file():
@@ -35,31 +31,20 @@ def goodbye_dpi():
 
 
 
-def main():
-    while True:
-        try:
-            check_requirements_file()
+def main(content_url):
+    check_requirements_file()
 
-            content_url = str(input('\n>> ')).replace(' ', '')
-            base_url = urlparse(content_url).netloc
-            
+    base_url = urlparse(content_url).netloc
 
-            if 'e-hentai.org' in base_url: run_executor(dl_ehentai, content_url)
-            elif 'comic.naver.com' in base_url: run_executor(dl_naverwt, content_url)
-            elif 'tkor' in base_url: run_executor(dl_toonkor, content_url)
-            elif 'ncode.syosetu.com' in base_url: run_executor(dl_syosetu, content_url)
-            elif 'hiyobi' in base_url: run_executor(dl_hiyobi, content_url)
-            elif 'marumaru' in base_url: run_executor(dl_marumaru, content_url)
-            elif 'pixiv.net' in base_url: run_executor(dl_pixiv, content_url)
+    if 'e-hentai.org' in base_url: run_executor(dl_ehentai, content_url)
+    elif 'comic.naver.com' in base_url: run_executor(dl_naverwt, content_url)
+    elif 'tkor' in base_url: run_executor(dl_toonkor, content_url)
+    elif 'ncode.syosetu.com' in base_url: run_executor(dl_syosetu, content_url)
+    elif 'hiyobi' in base_url: run_executor(dl_hiyobi, content_url)
+    elif 'marumaru' in base_url: run_executor(dl_marumaru, content_url)
+    elif 'pixiv.net' in base_url: run_executor(dl_pixiv, content_url)
 
-            else: StatePrint('error', '지원되지 않는 사이트 입니다.')
-
-
-
-        except ( KeyboardInterrupt, EOFError ):
-            break
-
-    loop.close()
+    else: StatePrint('error', '지원되지 않는 사이트 입니다.')
 
 
 
@@ -72,10 +57,16 @@ if __name__ == "__main__":
         
         sleep(1)
         ClearWindow()
-        main()
+
+        while True:
+            content_url = str(input('\n>> ')).replace(' ', '')
+            mainThr = Thread(target=main, args=(content_url,))
+            mainThr.start()
+        
 
         system('taskkill /f /im goodbyedpi.exe')
         thr.join()
+
 
     else:
         ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)

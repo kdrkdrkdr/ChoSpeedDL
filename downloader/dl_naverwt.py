@@ -4,11 +4,11 @@ from ._utils import *
 baseURL = 'https://comic.naver.com'
 
 
-async def GetImagesURL(epi_url):
+async def GetImagesURL(epi_url, loop):
 
     ListOfIMGsURL = {}
 
-    soup = await GetSoup(epi_url, referer=epi_url)
+    soup = await GetSoup(epi_url, referer=epi_url, loop=loop)
 
     h2 = soup.find_all('h2')[1]
     for t in h2.select('span'):
@@ -20,7 +20,7 @@ async def GetImagesURL(epi_url):
     pages = (epiCount // 10) + 1
 
     pageUrls = [f'{epi_url}&page={i}' for i in range(1, pages+1, 1)]
-    pSoup = [asyncio.ensure_future(GetSoup(u, referer=u)) for u in pageUrls]
+    pSoup = [asyncio.ensure_future(GetSoup(u, referer=u, loop=loop)) for u in pageUrls]
     p = await asyncio.gather(*pSoup)
 
     episode_linkList = []
@@ -29,7 +29,7 @@ async def GetImagesURL(epi_url):
 
     episode_links = ['https://comic.naver.com' + e.a['href'] for e in episode_linkList]
 
-    rSoup = [asyncio.ensure_future(GetSoup(r, referer=r)) for r in episode_links]
+    rSoup = [asyncio.ensure_future(GetSoup(r, referer=r, loop=loop)) for r in episode_links]
     r = await asyncio.gather(*rSoup)
 
     for s in r:
@@ -41,10 +41,10 @@ async def GetImagesURL(epi_url):
 
 
 
-async def main(wtLink):
+async def main(wtLink, loop):
     start_time = time()
 
-    wt = await GetImagesURL(wtLink)
+    wt = await GetImagesURL(wtLink, loop)
 
     wtTitle = wt[0]
     imgsURL = wt[1]
@@ -70,9 +70,16 @@ async def main(wtLink):
 
     await asyncio.gather(*tasks)
 
+
     pdf_tasks = [asyncio.ensure_future(MakePDF(ImageList=imageLoc[idx], Filename=dirList[idx]+'.pdf')) for idx in range(len(dirList))]
     
     await asyncio.gather(*pdf_tasks)
     
     for d in dirList: rmtree(d, ignore_errors=True)
+
+
+def run(gLink):
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(main(gLink, loop))
+    loop.close()
 

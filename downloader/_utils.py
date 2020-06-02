@@ -22,18 +22,16 @@ import codecs
 
 from json import loads
 from click import clear as ClearWindow
+from threading import Thread
+
 
 download_folder = '다운로드_폴더'
 
 
 init(autoreset=True)
 
-loop = asyncio.get_event_loop()
 
 sem = asyncio.Semaphore(250)
-
-
-
 
 def GetSession(referer):
     sess = Session()
@@ -56,7 +54,7 @@ def MakeDirectory(DirPath):
 
 
 
-async def GetSoup(url, referer):
+async def GetSoup(url, referer, loop):
     sess = GetSession(referer)
     req = await loop.run_in_executor(None, sess.get, url)
     html = req.text
@@ -69,11 +67,11 @@ async def GetSoup(url, referer):
 async def FileDownload(filename, fileurl, referer=None):
     if referer == None:
         referer = fileurl
-
+        
     while True:
         try:
             async with sem:
-                async with aiohttp.ClientSession(headers={'User-Agent':'Mozilla 5.0', 'cookie':'', 'Referer':'https://www.pixiv.net'}) as sess:
+                async with aiohttp.ClientSession(headers={'User-Agent':'Mozilla 5.0', 'Referer':referer}) as sess:
                     async with sess.get(fileurl) as resp:
                         async with aiofiles.open(filename, 'wb') as f:
                             await f.write(await resp.read())
@@ -103,7 +101,7 @@ async def MakePDF(ImageList, Filename):
         async with aiofiles.open(Filename, 'wb') as pdf:
             await pdf.write(pdfConvert(ImageList))
     except:
-        StatePrint('error', 'pdf 제작에 오류가 발생했습니다.')
+        StatePrint('error', f'pdf 제작에 오류가 발생했습니다. => {Filename}')
 
     finally:
         return
@@ -123,7 +121,7 @@ def StatePrint(state, string):
         print(Fore.YELLOW + f'[Info] {string}')
 
     elif state == 'error':
-        print(Fore.RED + f'[Error] {string}')
+        print(Fore.RED + f'\n[Error] {string}')
 
     elif state == 'complete':
         print(Fore.GREEN + f'[Complete] {string}')

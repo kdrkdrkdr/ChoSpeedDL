@@ -3,11 +3,11 @@ from ._utils import *
 
 baseURL = 'https://tkor.pro'
 
-async def GetImagesURL(wtLink):
+async def GetImagesURL(wtLink, loop):
 
     ListOfIMGsURL = {}
 
-    soup = await GetSoup(wtLink, referer=wtLink)
+    soup = await GetSoup(wtLink, referer=wtLink, loop=loop)
 
     wtTitle = soup.find('td', {'class':'bt_title'}).text
 
@@ -20,7 +20,7 @@ async def GetImagesURL(wtLink):
 
     epiUrls = [baseURL + t.find('td', {'class':'episode__index'})['data-role'] for t in table]
 
-    eSoup = [asyncio.ensure_future(GetSoup(e, referer=baseURL)) for e in epiUrls]
+    eSoup = [asyncio.ensure_future(GetSoup(e, referer=baseURL, loop=loop)) for e in epiUrls]
 
     t = await asyncio.gather(*eSoup)
 
@@ -45,9 +45,9 @@ async def GetImagesURL(wtLink):
 
 
 
-async def main(wtLink):
+async def main(wtLink, loop):
     start_time = time()
-    wt = await GetImagesURL(wtLink)
+    wt = await GetImagesURL(wtLink, loop)
 
     wtTitle = wt[0]
     imgsURL = wt[1]
@@ -79,4 +79,10 @@ async def main(wtLink):
     await asyncio.gather(*pdf_tasks)
 
     for d in dirList: rmtree(d, ignore_errors=True)
+
+
+def run(gLink):
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(main(gLink, loop))
+    loop.close()
     
