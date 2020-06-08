@@ -1,6 +1,23 @@
 from ._utils import *
 
-baseURL = 'https://marumaru.guide'
+baseURL = 'https://marumaru.earth'
+
+
+
+async def GetOneEpisode(epi_url, loop):
+    soup = await GetSoup(epi_url, referer=epi_url, loop=loop)
+
+    epiTitle = soup.find('meta', {'name':'title'})['content']
+    bigTitle = ' '.join(epiTitle.split(' ')[0:-1])
+
+    print(epiTitle)
+
+    imgs = [i['src'] if 'marumaru' in i['src'] else baseURL+i['src'] for i in soup.find('div', {'class':'view-img'}).find_all('img')]
+
+    return [bigTitle, {epiTitle:imgs}]
+
+
+
 
 async def GetImagesURL(epi_url, loop):
     
@@ -23,8 +40,8 @@ async def GetImagesURL(epi_url, loop):
 
 
 async def main(epi_url, loop):
-
-    g = await GetImagesURL(epi_url, loop)
+    
+    g = await GetOneEpisode(epi_url, loop)
 
     title = g[0]
     imgsURL = g[1]
@@ -36,16 +53,17 @@ async def main(epi_url, loop):
     imageLoc = []
     tasks = []
     for k, v in imgsURL.items():
-        MakeDirectory(f'./{download_folder}/{dirLoc}/{k}/')
-        dirList.append(f'./{download_folder}/{dirLoc}/{k}')
+        if isfile(f'./{download_folder}/{dirLoc}/{k}.pdf') != True:
+            MakeDirectory(f'./{download_folder}/{dirLoc}/{k}/')
+            dirList.append(f'./{download_folder}/{dirLoc}/{k}')
 
-        tempDir = []
-        for idx, imgUrl in enumerate(v):
-            imgFileName = f'./{download_folder}/{dirLoc}/{k}/{idx}.jpg'
-            tasks.append(asyncio.ensure_future(FileDownload(filename=imgFileName, fileurl=imgUrl)))
-            tempDir.append(imgFileName)
+            tempDir = []
+            for idx, imgUrl in enumerate(v):
+                imgFileName = f'./{download_folder}/{dirLoc}/{k}/{idx}.jpg'
+                tasks.append(asyncio.ensure_future(FileDownload(filename=imgFileName, fileurl=imgUrl, referer=baseURL)))
+                tempDir.append(imgFileName)
 
-        imageLoc.append(tempDir)
+            imageLoc.append(tempDir)
 
 
     await asyncio.gather(*tasks)

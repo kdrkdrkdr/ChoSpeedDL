@@ -2,7 +2,7 @@
 
 빠른 속도로 다운로드 해줍니다.
 
-여러 횟차가 있는 경우, 전체 횟자로 다운로드 가능합니다.
+여러 횟차가 있는 경우, 전체 횟자 또는 한 욋차로 다운로드 가능합니다.
 
 
 # 현재 지원되는 사이트
@@ -16,3 +16,5 @@
 |hiyobi|https://hiyobi.me|
 |marumaru|https://marumaru.guide|
 |pixiv|https://www.pixiv.net|
+|ani24|https://ani24do.com/|
+|yaani24|https://yaani24.net|

@@ -4,6 +4,23 @@ from ._utils import *
 baseURL = 'https://comic.naver.com'
 
 
+async def GetOneEpisode(one_epi_url, loop):
+    soup = await GetSoup(one_epi_url, referer=baseURL, loop=loop)
+    
+    h2 = soup.find_all('h2')[1]
+    for t in h2.select('span'):
+        t.extract()
+
+    bigTitle = h2.text
+    
+    epiTitle = soup.h3.text
+    
+    imageUrls = [i['src'] for i in soup.find('div', {'class':'wt_viewer'}).find_all('img')]
+
+    return [bigTitle, {epiTitle:imageUrls}]
+
+
+
 async def GetImagesURL(epi_url, loop):
 
     ListOfIMGsURL = {}
@@ -14,7 +31,7 @@ async def GetImagesURL(epi_url, loop):
     for t in h2.select('span'):
         t.extract()
 
-    title = sub('[\n\t]', '', h2.text)
+    title = ''.join(list(sub('[\n\t]', '', h2.text))[8:])
     
     epiCount = int(str(soup.find('td', {'class':'title'}).a['onclick']).split("\'")[-2])
     pages = (epiCount // 10) + 1
@@ -44,7 +61,11 @@ async def GetImagesURL(epi_url, loop):
 async def main(wtLink, loop):
     start_time = time()
 
-    wt = await GetImagesURL(wtLink, loop)
+
+    if 'list.nhn' in wtLink:
+        wt = await GetImagesURL(wtLink, loop)
+    else:
+        wt = await GetOneEpisode(wtLink, loop)
 
     wtTitle = wt[0]
     imgsURL = wt[1]
@@ -55,19 +76,20 @@ async def main(wtLink, loop):
     dirList = []
     imageLoc = []
     tasks = []
+
     for k, v in imgsURL.items():
-        MakeDirectory(f'./{download_folder}/{dirLoc}/{k}/')
-        dirList.append(f'./{download_folder}/{dirLoc}/{k}')
+        if isfile(f'./{download_folder}/{dirLoc}/{k}.pdf') != True:
+            MakeDirectory(f'./{download_folder}/{dirLoc}/{k}/')
+            dirList.append(f'./{download_folder}/{dirLoc}/{k}')
+            
+            tempDir = []
+            for idx, imgUrl in enumerate(v):
+                imgFileName = f'./{download_folder}/{dirLoc}/{k}/{idx}.jpg'
+                tasks.append(asyncio.ensure_future(FileDownload(filename=imgFileName, fileurl=imgUrl)))
+                tempDir.append(imgFileName)
 
-        tempDir = []
-        for idx, imgUrl in enumerate(v):
-            imgFileName = f'./{download_folder}/{dirLoc}/{k}/{idx}.jpg'
-            tasks.append(asyncio.ensure_future(FileDownload(filename=imgFileName, fileurl=imgUrl)))
-            tempDir.append(imgFileName)
-
-        imageLoc.append(tempDir)
-
-
+            imageLoc.append(tempDir)
+            
     await asyncio.gather(*tasks)
 
 
@@ -78,8 +100,8 @@ async def main(wtLink, loop):
     for d in dirList: rmtree(d, ignore_errors=True)
 
 
-def run(gLink):
+def run(epi_url):
     loop = asyncio.new_event_loop()
-    loop.run_until_complete(main(gLink, loop))
+    loop.run_until_complete(main(epi_url, loop))
     loop.close()
 

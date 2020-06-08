@@ -27,7 +27,8 @@ def check_requirements_file():
 
 
 def goodbye_dpi():
-    system('.\\goodbyedpi\\goodbyedpi.exe -1')
+    # system('.\\util\\goodbyedpi.exe -1')
+    pass
 
 
 
@@ -43,9 +44,10 @@ def main(content_url):
     elif 'hiyobi' in base_url: run_executor(dl_hiyobi, content_url)
     elif 'marumaru' in base_url: run_executor(dl_marumaru, content_url)
     elif 'pixiv.net' in base_url: run_executor(dl_pixiv, content_url)
+    elif 'yaani24' in base_url: run_executor(dl_yaani24, content_url)
+    elif 'ani24' in base_url: run_executor(dl_ani24, content_url)
 
     else: StatePrint('error', '지원되지 않는 사이트 입니다.')
-
 
 
 

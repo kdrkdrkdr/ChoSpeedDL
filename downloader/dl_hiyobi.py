@@ -28,21 +28,23 @@ async def main(gLink, loop):
     imgsURL = g[1]
 
     dirLoc = '[hiyobi] ' + GetFileName(f'{title}')
-    MakeDirectory(f'./{download_folder}/{dirLoc}/')
 
-    imageLoc = []
-    tasks = []
-    for idx, imgurl in enumerate(imgsURL):
-        imgName = f'./{download_folder}/{dirLoc}/{idx}.jpg'
-        tasks.append(asyncio.ensure_future(FileDownload(filename=imgName, fileurl=imgurl)))
-        imageLoc.append(imgName)
+    if isfile(f'./{download_folder}/{dirLoc}.pdf') != True:
+        
+        MakeDirectory(f'./{download_folder}/{dirLoc}/')
 
-    await asyncio.gather(*tasks)
+        imageLoc = []
+        tasks = []
+        for idx, imgurl in enumerate(imgsURL):
+            imgName = f'./{download_folder}/{dirLoc}/{idx}.jpg'
+            tasks.append(asyncio.ensure_future(FileDownload(filename=imgName, fileurl=imgurl)))
+            imageLoc.append(imgName)
 
+        await asyncio.gather(*tasks)
 
-    await asyncio.gather(asyncio.ensure_future(MakePDF(ImageList=imageLoc, Filename=f'./{download_folder}/{dirLoc}.pdf')))
+        await asyncio.gather(asyncio.ensure_future(MakePDF(ImageList=imageLoc, Filename=f'./{download_folder}/{dirLoc}.pdf')))
 
-    rmtree(f'./{download_folder}/{dirLoc}/', ignore_errors=True)
+        rmtree(f'./{download_folder}/{dirLoc}/', ignore_errors=True)
     
 
 

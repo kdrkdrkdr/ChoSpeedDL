@@ -28,6 +28,7 @@ async def main(syosetuLink, loop):
 
     syosetuTitle = epi_list[0]
     epi_urls = epi_list[1]
+    
 
     dirLoc = '[syosetu] ' + GetFileName(syosetuTitle)
     MakeDirectory(f'./{download_folder}/{dirLoc}/')
@@ -42,7 +43,8 @@ async def main(syosetuLink, loop):
         for nC in nContent:
             novelContent += str(nC.text) + "\n"
         
-        WriteTextFile(filename=f'./{download_folder}/{dirLoc}/{list(epi_urls.keys())[idx]}.txt', content=novelContent)
+        if isfile(f'./{download_folder}/{dirLoc}/{list(epi_urls.keys())[idx]}.txt') != True:
+            WriteTextFile(filename=f'./{download_folder}/{dirLoc}/{list(epi_urls.keys())[idx]}.txt', content=novelContent)
 
 
 def run(gLink):

@@ -24,7 +24,9 @@ async def main(artLink, loop):
     fname = '[pixiv] ' + GetFileName(g[0]) + '.jpg'
     imgurl = g[1]
 
-    task = asyncio.ensure_future(FileDownload(filename=f'./{download_folder}/{fname}', fileurl=imgurl))
+    if isfile(f'./{download_folder}/{fname}') != True:
+        task = asyncio.ensure_future(FileDownload(filename=f'./{download_folder}/{fname}', fileurl=imgurl))\
+            
     await asyncio.gather(task)
 
 

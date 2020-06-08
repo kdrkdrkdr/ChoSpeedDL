@@ -9,7 +9,7 @@ import aiohttp
 import aiofiles
 
 from shutil import rmtree
-from os import mkdir
+from os import mkdir, system
 from img2pdf import convert as pdfConvert
 
 from urllib.parse import urlparse
@@ -23,6 +23,9 @@ import codecs
 from json import loads
 from click import clear as ClearWindow
 from threading import Thread
+
+from pySmartDL import SmartDL
+from os.path import isfile, isdir
 
 
 download_folder = '다운로드_폴더'
@@ -47,8 +50,8 @@ def MakeDirectory(DirPath):
     try:
         mkdir(DirPath)
     except FileExistsError:
-        rmtree(DirPath, ignore_errors=True)
-        mkdir(DirPath)
+        pass
+
     finally:
         return True
 
@@ -61,6 +64,28 @@ async def GetSoup(url, referer, loop):
     soup = await loop.run_in_executor(None, BeautifulSoup, html, 'html.parser')
     return soup
 
+
+
+
+def BigFileDownload(filename, dirLoc, fileurl, referer=None):
+    ariaLocation = '.\\util\\aria2c.exe '
+    
+    ariaCmd = ariaLocation + ' '.join(
+        [
+            f'--out={filename}',
+            f'--dir={dirLoc}',
+            '--file-allocation=none',
+            '--check-certificate=false',
+            '--max-connection-per-server=16',
+            '--split=64',
+            '--min-split-size=1M',
+            '--user-agent="Mozilla 5.0"',
+            # f'--referer={referer}'
+            fileurl
+        ]
+    )
+    
+    system('start /b ' + ariaCmd)
 
 
 
@@ -78,15 +103,15 @@ async def FileDownload(filename, fileurl, referer=None):
             break
 
         except:
-            print(fileurl)
-
+            continue
 
 
 
 def GetFileName(filename):
     toReplace = {
-        '\\':'', '/':'', ':':'-', '\"':'',
-        '?':'', '<':'[', '>':']', '|':'-', '*':''
+        '\\':'', '/':'', ':':'-', '\"':'', '-':'_',
+        '?':'', '<':'[', '>':']', '|':'-', '*':'',
+        '\n':'', '\t':'', '        ':'', ' ':'_'
     }
 
     for key, value in toReplace.items():
