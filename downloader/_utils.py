@@ -67,26 +67,12 @@ async def GetSoup(url, referer, loop):
 
 
 
-def BigFileDownload(filename, dirLoc, fileurl, referer=None):
-    ariaLocation = '.\\util\\aria2c.exe '
-    
-    ariaCmd = ariaLocation + ' '.join(
-        [
-            f'--out={filename}',
-            f'--dir={dirLoc}',
-            '--file-allocation=none',
-            '--check-certificate=false',
-            '--max-connection-per-server=16',
-            '--split=64',
-            '--min-split-size=1M',
-            '--user-agent="Mozilla 5.0"',
-            # f'--referer={referer}'
-            fileurl
-        ]
-    )
-    
-    system('start /b ' + ariaCmd)
-
+def BigFileDownload(filename, fileurl, referer=None):
+    try:
+        obj = SmartDL(fileurl, dest=filename, progress_bar=False, request_args={'headers':{'user-agent':'Mozilla/5.0', 'referer':referer}})
+        obj.start()
+    except:
+        print("error")
 
 
 async def FileDownload(filename, fileurl, referer=None):

@@ -10,8 +10,6 @@ async def GetOneEpisode(epi_url, loop):
     epiTitle = soup.find('meta', {'name':'title'})['content']
     bigTitle = ' '.join(epiTitle.split(' ')[0:-1])
 
-    print(epiTitle)
-
     imgs = [i['src'] if 'marumaru' in i['src'] else baseURL+i['src'] for i in soup.find('div', {'class':'view-img'}).find_all('img')]
 
     return [bigTitle, {epiTitle:imgs}]

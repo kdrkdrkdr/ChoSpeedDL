@@ -27,7 +27,7 @@ def check_requirements_file():
 
 
 def goodbye_dpi():
-    # system('.\\util\\goodbyedpi.exe -1')
+    system('.\\util\\goodbyedpi.exe -1')
     pass
 
 
