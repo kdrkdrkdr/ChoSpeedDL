@@ -89,6 +89,7 @@ async def main(aniLink, loop):
 
     for thr in thrList:
         thr.start()
+        thr.join()
 
 
 

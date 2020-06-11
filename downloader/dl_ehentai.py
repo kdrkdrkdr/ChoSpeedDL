@@ -55,7 +55,7 @@ async def main(gallery_link, loop):
         imageLoc = []
         tasks = []
         for idx, imgurl in enumerate(imgsURL):
-            imgName = f'./{download_folder}/{dirLoc}/{idx}.jpg'
+            imgName = f'./{download_folder}/{dirLoc}/{idx}.png'
             tasks.append(asyncio.ensure_future(FileDownload(filename=imgName, fileurl=imgurl)))
             imageLoc.append(imgName)
             

@@ -62,11 +62,12 @@ async def main(aniLink, loop):
         fname = f'./{download_folder}/{dirLoc}/{GetFileName(k)}.mp4'
         if isfile(fname) != True:
             thrList.append(
-                Thread(target=BigFileDownload, args=(f'{GetFileName(k)}.mp4', f'.\\{download_folder}\\{dirLoc}', v))
+                Thread(target=BigFileDownload, args=(f'./{download_folder}/{dirLoc}/{GetFileName(k)}.mp4', v, baseURL))
             )
 
     for thr in thrList:
         thr.start()
+        thr.join()
 
 
 

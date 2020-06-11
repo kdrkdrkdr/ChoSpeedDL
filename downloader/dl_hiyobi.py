@@ -42,7 +42,7 @@ async def main(gLink, loop):
 
         await asyncio.gather(*tasks)
 
-        await asyncio.gather(asyncio.ensure_future(MakePDF(ImageList=imageLoc, Filename=f'./{download_folder}/{dirLoc}.pdf')))
+        await MakePDF(ImageList=imageLoc, Filename=f'./{download_folder}/{dirLoc}.pdf')
 
         rmtree(f'./{download_folder}/{dirLoc}/', ignore_errors=True)
     
